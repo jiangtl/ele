@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html ng-app='EleApp' xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>饿了么智能分单</title>
+<link type="text/css" href="css/pub.css" rel="stylesheet" />
+<link type="text/css" href="css/foundation.css" rel="stylesheet" />
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/a.js"></script>
+<script type="text/javascript" src="js/angular.min.js"></script>
+<script type="text/javascript" src="js/controllers-ele.js"></script>
+
+</head>
+<body ng-controller="EleCtrl">
+<div class="row">
+  <div class="large-12 columns">
+    <div class="panel">
+      <!-- <h3>沈阳小伙伴</h3>
+      <p>
+        <a class="large round button info">浩哥
+          <span style="font-size:0.8rem">永远28</span>
+        </a>
+        <a class="large round button info">龙哥
+          <span style="font-size:0.8rem">偏执狂</span>
+        </a>
+        <a class="large round button info">海大爷
+          <span style="font-size:0.8rem">失眠多梦</span>
+        </a>
+        <a class="large round button info">小辉辉
+          <span style="font-size:0.8rem">把时间丢掉</span>
+        </a>
+        <a class="large round button info">晓旭
+          <span style="font-size:0.8rem">女蛇精</span>
+        </a>
+        <a class="large round button info">金波
+          <span style="font-size:0.8rem">阿弥陀佛</span>
+        </a>
+        <a class="large round button info">庆斌
+          <span style="font-size:0.8rem">重点对象</span>
+        </a>
+        <a class="large round button info">王鹏
+          <span style="font-size:0.8rem">临时工</span>
+        </a>
+        <a class="large round button info">迟娜
+          <span style="font-size:0.8rem">朴有天</span>
+        </a>
+        <a class="large round button info">王芳
+          <span style="font-size:0.8rem">两瓶凉的两瓶温的</span>
+        </a>
+      </p> -->
+      <h3>价格选项</h3>
+      <p>
+        <a ng-click="addPrice(8)" class="large round button info">8元</a>
+        <a ng-click="addPrice(9)" class="large round button info">9元</a>
+        <a ng-click="addPrice(10)" class="large round button info">10元</a>
+        <a ng-click="addPrice(11)" class="large round button info">11元</a>
+        <a ng-click="addPrice(12)" class="large round button info">12元</a>
+        <a ng-click="addPrice(13)" class="large round button info">13元</a>
+        <a ng-click="addPrice(15)" class="large round button info">15元</a>
+        <a ng-click="addPrice(16)" class="large round button info">16元</a>
+        <a ng-click="addPrice(17)" class="large round button info">17元</a>
+        <a ng-click="addPrice(18)" class="large round button info">18元</a>
+        <a ng-click="addPrice(20)" class="large round button info">20元</a>
+        <a ng-click="addPrice(21)" class="large round button info">21元</a>
+      </p>
+      <h5>自定义:</h5> 
+      <p>                 
+        <div class="small-4 columns">
+            <input ng-model="price" type="text" placeholder="单价">
+          </div>          
+          <div class="small-8 columns">
+            <a style="margin-top:-7px;" class="button success" ng-click="addPrice(price)">添加</a>
+        </div>        
+      </p>
+      <h3>已选价格（限七份以内）</h3>
+      <p>        
+        <a ng-repeat="item in person_list" ng-click="removePrice(item)" class="large round button">{{item.price}}元</a>
+        <a class="large round button" style="background-color:orange">总计{{total_price}}元</a>
+      </p>
+  </div>
+</div>
+</div>
+
+<div class="row">
+  <div class="large-12 columns">
+    <div class="panel">
+      <h3>优惠活动</h3>
+      <p>
+        <a ng-repeat="item in init_promotion_list" ng-click="addPromotion(item.full_price, item.cheap_price)" class="large round button info">满{{item.full_price}}减{{item.cheap_price}}</a>
+      </p>
+
+      <div class="row">
+        <h5>自定义:</h5>     
+          <div class="small-1 columns">
+            <label for="right-label" class="right inline">满</label>
+          </div>
+          <div style="padding-left:0px;" class="small-3 columns">
+            <input ng-model="full_price" type="text" id="right-label">
+          </div>
+          <div style="width:15px;padding-left:0px;" class="columns">
+            <label for="right-label" class="right inline">元</label>
+          </div>
+          <div class="small-1 columns">
+            <label for="right-label" class="right inline">减</label>
+          </div>
+          <div style="padding-left:0px;" class="small-3 columns">
+            <input ng-model="cheap_price" type="text" id="right-label">
+          </div>
+          <div style="width:15px;padding-left:0px;" class="columns">
+            <label for="right-label" class="right inline">元</label>
+          </div>
+          <div class="small-3 columns">
+            <a ng-click="addPromotion(full_price, cheap_price)" style="margin-top:-7px;" class="button success">添加</a>
+          </div>        
+      </div>
+
+      <h3>已选优惠</h3>
+      <p>
+        <a ng-repeat="item in promotion_list" ng-click="removePromotion(item.full_price, item.cheap_price)" class="large round button">满{{item.full_price}}减{{item.cheap_price}}</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="row">
+  <div class="large-12 columns">
+    <div class="panel">
+      <h3>红包</h3>
+      <p>
+        <a ng-click="addCashCoupon(1)" class="large round button info">1元</a>
+        <a ng-click="addCashCoupon(2)" class="large round button info">2元</a>
+        <a ng-click="addCashCoupon(3)" class="large round button info">3元</a>
+        <a ng-click="addCashCoupon(4)" class="large round button info">4元</a>
+        <a ng-click="addCashCoupon(5)" class="large round button info">5元</a>
+        <a ng-click="addCashCoupon(6)" class="large round button info">6元</a>
+        <a ng-click="addCashCoupon(6)" class="large round button info">8元</a>
+      </p>
+
+      <h5>自定义:</h5> 
+      <p>                 
+        <div class="small-4 columns">
+            <input ng-model="cash_coupon" type="text" placeholder="价格">
+          </div>          
+          <div class="small-8 columns">
+            <a ng-click="addCashCoupon(cash_coupon)" style="margin-top:-7px;" class="button success">添加</a>
+        </div>        
+      </p>
+
+      <h3>已选红包</h3>
+      <p>  
+      <li>{{item.cash_coupon}}</li>     
+        <a ng-repeat="item in cash_coupon_list" ng-click="removeCashCoupon(item.cash_coupon)" class="large round button">{{item.cash_coupon}}元</a>
+        
+        <a class="large round button" style="background-color:orange">总计{{total_cash_coupon}}元</a>
+      </p>
+    </div>
+  </div>
+</div> -->
+
+<div class="row">
+  <div class="small-12 columns">
+    <a ng-click="run()" class="button success expand">开始结算</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="large-12 columns">
+    <div class="panel">
+      <h3>匹配结果</h3>
+      <div class="row">
+        <div ng-repeat="item in solution" class="large-6 columns">
+          <div style="display:none">{{setItemResult(item)}}</div>
+          <div class="callout panel" style="padding:0.2em;">
+            <ul class="pricing-table">
+              <li class="title">
+                <span style="color: #EEEEEE">方案 {{getUpcaseNum($index)}}<span>
+              </li>              
+              <li ng-repeat="order in item" class="bullet-item">
+              <span ng-show="!!order.hbprice"><img src="img/{{order.hbprice}}.png" width="25px" height="25px"/></span>
+              第{{getUpcaseNum($index)}}单：{{order.num}} &nbsp;&nbsp;
+              <span ng-show="order.prom!=0">满{{order.prom}}减{{order.cheap}}，均减{{((order.cheap+order.hbprice)/order.count).toFixed(1)}}元</span>
+              <span ng-show="order.prom==0 && order.hbprice>0">均减{{(order.hbprice/order.count).toFixed(1)}}元</span>
+              <span style="float:right"><a ng-click="setOrderHb(order)" style="margin-left:20px;padding-left:25px;background:url('img/hongbao.jpg') no-repeat 0 0 transparent;">&nbsp;</a></span>
+              </li>
+              <li class="price">￥{{item.total-item.cheaps}}</li>
+              <li class="cta-button" style="padding-left:0rem;padding-right:0rem;">
+                <a class="button" href="#">共优惠{{item.cheaps+total_cash_coupon}}元</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer_box">
+  <div class="footer"> <a class="logo"><img width="240" height="65" alt="北京信柏信息科技有限公司" src="http://www.symboltech.com/public/templates/Default/images/logo_2.gif"></a>
+    <ul>
+      <li>2015<strong>信柏科技</strong>版权所有&nbsp;V1.1</li>
+            <li><a target="_blank" href="http://www.miibeian.gov.cn/">技术支持 Jack</a></li>
+       
+      <!--<li>诚信网站</li>--><br>
+      <li><a href="/declare">免责声明</a></li>
+      <li><a href="/about_us.html#connect">联系我们</a></li>
+      <!--<li><a href="/about_us.html#info">网站所有者信息</a></li>-->
+    </ul>    
+  </div>
+</div>
+</body>
+</html>
