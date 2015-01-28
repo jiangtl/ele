@@ -1,5 +1,144 @@
 var app = angular.module("EleApp", []);
-app.controller("EleCtrl", function($scope) {
+app.factory("base", function(){
+  var promotionList = [{
+    full_price : 15, cheap_price : 4
+  },{
+    full_price : 20, cheap_price : 5
+  },{
+    full_price : 20, cheap_price : 7
+  },{
+    full_price : 30, cheap_price : 7
+  },{
+    full_price : 30, cheap_price : 9
+  },{
+    full_price : 40, cheap_price : 15
+  },{
+    full_price : 50, cheap_price : 17
+  }];
+  //深度拷贝
+  var deepCopy = function(source) { 
+    var arr = [];
+    for(var i = 0; i<source.length; i++){
+      if(source[i] instanceof Array){
+        arr[i] = arguments.callee(source[i]);
+      }else{
+        arr[i] = source[i];
+      }
+    }
+    return arr;
+  }
+
+  var  base = {
+    //全分组结果
+    res : [],
+    //各单品金额
+    list : [],
+    setList : function(list) {
+      this.res = [];
+      if(list instanceof Array) {
+        this.list = list.concat();
+      }
+      return this;
+    },
+    getResult : function() {
+      return this.res;
+    },
+    //满减活动
+    getPromotionList : function() {
+      return promotionList.concat();
+    },
+    //分裂组合
+    combin : function(index) {
+      var newRes = deepCopy(this.res);
+      this.res = [];
+      var data = this.list[index];
+      if(newRes.length > 0 ){
+        for(var i=0; i< newRes.length; i++){          
+          var arr = deepCopy(newRes[i]);
+          arr.push([data]);
+          this.res.push(arr);
+          var oldArr = deepCopy(newRes[i]);
+          for(var j = 0; j< oldArr.length; j++){
+            var itemTem = deepCopy(newRes[i]);
+            itemTem[j].push(data);
+            this.res.push(itemTem);
+          }                         
+        }     
+      }else{
+        this.res.push([[data]]);
+      }
+    },
+    //匹配优惠
+    matchPromo : function(list, promoList) {
+      var arr = [];
+      for(var i=0; i<list.length; i++) {
+        var realOrder = [];
+        var orders = list[i];
+        for(var j=0; j<orders.length; j++) {
+          var order = orders[j];
+          var promotion = this.getProm(order, promoList);
+          var item = {
+            num : order.join("、"),          
+            hbprice : 0,//红包
+            count : promotion.count,
+            sum :  promotion.sum,
+            prom : promotion.full,
+            cheap : promotion.cheap
+          }
+          realOrder.push(item);
+        }
+        arr.push(realOrder);
+      }
+      return arr;
+    },
+    getProm : function(order, plist) {
+      var sum = 0, count = 0;    
+      var num = 0;
+      if(!order instanceof Array) {
+        return;
+      }
+      if(order.length > 0) {
+        for(var j=0; j<order.length; j++) {
+          sum += parseFloat(order[j]);
+          count += 1;
+        }
+      } else {
+        sum += parseFloat(order[0]);
+        count += 1;
+      }
+      
+      //console.log(arguments, sum);
+      for(var i=0; i<plist.length; i++) {
+        if(sum >= plist[i].full_price) {
+          return {
+            count : count,
+            sum : sum,
+            full : plist[i].full_price,
+            cheap : plist[i].cheap_price
+          }
+        }
+      }
+      return {
+        count : 1,
+        sum : sum,
+        full : 0,
+        cheap: 0
+      };
+    },
+    //遍历&计算
+    compute : function() {
+      for(var i = 0; i < this.list.length; i++){
+        this.combin(i);
+      }
+    }
+  }
+
+
+
+  return base;
+})
+
+app.controller("EleCtrl", function($scope, base) {
   $scope.price = "";
   $scope.total_price = 0;
   $scope.full_price = "";
@@ -11,40 +150,19 @@ app.controller("EleCtrl", function($scope) {
   $scope.promotion_list = [];
   $scope.cash_coupon_list = [];
   $scope.solution = [];//解决方案
-  $scope.init_promotion_list = [{
-    full_price : 15,
-    cheap_price : 4
-  },{
-    full_price : 20,
-    cheap_price : 5
-  },{
-    full_price : 20,
-    cheap_price : 7
-  },{
-    full_price : 30,
-    cheap_price : 7
-  },{
-    full_price : 30,
-    cheap_price : 9
-  },{
-    full_price : 40,
-    cheap_price : 15
-  },{
-    full_price : 50,
-    cheap_price : 17
-  }];
+  $scope.init_promotion_list = base.getPromotionList();
 
   $scope.addPrice = function(p) {
     if(isNaN($scope.price) || isNaN(p) || p <= 0) {
       return;
     }
-    if($scope.price_list.length > 6) {
+    if($scope.price_list.length > 8) {
       alert("计算量过大，不能在选了！");
       return;
     }
     $scope.person_list.push({price:p});
     $scope.price_list.push(p);
-    $scope.total_price += p;
+    $scope.total_price += parseFloat(p);
     $scope.price = "";
   }
 
@@ -174,7 +292,9 @@ app.controller("EleCtrl", function($scope) {
       return;
     }
     price = parseInt(price);
+    $scope.total_cash_coupon -= order.hbprice;
     order.hbprice = price;
+    $scope.total_cash_coupon += order.hbprice;
   }
 
   $scope.run = function() {
@@ -202,21 +322,9 @@ app.controller("EleCtrl", function($scope) {
     }
     var t1= new Date().getTime();
 
-
-    //遍历
-    for(var i=0; i<$scope.price_list.length; i++) {
-      var plist = $scope.price_list.concat();
-      var num = plist.splice(0, 1)[0];
-      plist.push(num);
-      $scope.price_list = plist;
-      iterator($scope.price_list.concat(), null, $scope.price_list.length);
-    }
-
-    var t2 = new Date().getTime();
-    console.log("用时"+(t2-t1)/1000+"秒");
-
-    //匹配优惠
-    $scope.solution = matchPromo($scope.solution);
+    base.setList($scope.price_list).compute();
+    var result = base.getResult();
+    $scope.solution = base.matchPromo(result, $scope.promotion_list);
     //过滤
     $scope.solution = filterPromo($scope.solution);
     //排序
@@ -235,114 +343,15 @@ app.controller("EleCtrl", function($scope) {
       return (n1 > n2) ? -1 : 1;
     });
     
+    var t2 = new Date().getTime();
+    //console.log("用时"+(t2-t1)/1000+"秒");
+    
     //取优选方案
     if($scope.solution.length > 2) {
       $scope.solution.length = 2;
     }
   }
 
-
-  function iterator(list, arr, root) {
-    arr = arr || [];
-    var n1 = list.splice(0,1)[0];
-    if(list.length == 0) {
-      arr.push(n1);
-      $scope.solution.push(arr);
-    } else {
-      for(var i=0; i<list.length; i++) {
-        var arr1 = arr.concat();      
-        var nlist1 = list.concat();
-        var n2 = nlist1.splice(i,1);
-        var txt = n1+"、"+n2;
-        arr1.push(txt);
-        //-----------------
-        var arr2 = arr.concat();      
-        var nlist2 = nlist1.concat();
-        arr2.push(txt);
-        if(arr2.length == 1 && nlist2.length>0) {
-          arr2.push(nlist2.join("、"));
-          $scope.solution.push(arr2);
-          iterator(arr2.concat(), null, arr2.length);
-        }     
-        //-----------------
-        if(nlist1.length > 0) {
-          iterator(nlist1, arr1);
-        } else {
-          $scope.solution.push(arr1);
-        }
-      }
-      if(!!root || root == list.length + 1) {
-        if(list.length == 0) {
-          return;
-        }
-        var l = [n1];
-        if(isNaN(list[0]) && list[0].indexOf("、") != -1) {
-          var a = list[0].split("、");          
-          l = l.concat(a);
-        } else {
-          l = l.concat(list);
-        }
-        iterator(l);
-      }
-    }
-  }
-
-  function matchPromo(list) {
-    var arr = [];
-    for(var i=0; i<list.length; i++) {
-      var realOrder = [];
-      var orders = list[i];
-      for(var j=0; j<orders.length; j++) {
-        var order = orders[j];
-        var promotion = getProm(order);
-        var item = {
-          num : order,          
-          hbprice : 0,//红包
-          count : promotion.count,
-          sum :  promotion.sum,
-          prom : promotion.full,
-          cheap : promotion.cheap
-        }
-        realOrder.push(item);
-      }
-      arr.push(realOrder);
-    }
-    return arr;
-  }
-
-  function getProm(order) {
-    var sum = 0, count = 0;    
-    var num = order;
-    var plist = $scope.promotion_list;
-    if(isNaN(num) && num.indexOf("、") != -1) {
-      var arr = num.split("、");
-      for(var j=0; j<arr.length; j++) {
-        sum += parseFloat(arr[j]);
-        count += 1;
-      }
-    } else {
-      sum += parseFloat(num);
-      count += 1;
-    }
-  
-    //console.log(arguments, sum);
-    for(var i=0; i<plist.length; i++) {
-      if(sum >= plist[i].full_price) {
-        return {
-          count : count,
-          sum : sum,
-          full : plist[i].full_price,
-          cheap : plist[i].cheap_price
-        }
-      }
-    }
-    return {
-      count : 1,
-      sum : sum,
-      full : 0,
-      cheap: 0
-    };
-  }
   function filterPromo(list) {
     var n = {}, r = []; 
     for(var i=0; i<list.length; i++) {

@@ -38,7 +38,7 @@
             <a style="margin-top:-7px;" class="button success" ng-click="addPrice(price)">添加</a>
         </div>        
       </p>
-      <h3>已选价格（限七份以内）</h3>
+      <h3>已选价格（限十份以内）</h3>
       <p>        
         <a ng-repeat="item in person_list" ng-click="removePrice(item)" class="large round button">{{item.price}}元</a>
         <a class="large round button" style="background-color:orange">总计{{total_price}}元</a>
@@ -84,41 +84,9 @@
     </div>
   </div>
 </div>
-<!-- <div class="row">
-  <div class="large-12 columns">
-    <div class="panel">
-      <h3>红包</h3>
-      <p>
-        <a ng-click="addCashCoupon(1)" class="large round button info">1元</a>
-        <a ng-click="addCashCoupon(2)" class="large round button info">2元</a>
-        <a ng-click="addCashCoupon(3)" class="large round button info">3元</a>
-        <a ng-click="addCashCoupon(4)" class="large round button info">4元</a>
-        <a ng-click="addCashCoupon(5)" class="large round button info">5元</a>
-        <a ng-click="addCashCoupon(6)" class="large round button info">6元</a>
-        <a ng-click="addCashCoupon(6)" class="large round button info">8元</a>
-      </p>
-      <h5>自定义:</h5> 
-      <p>                 
-        <div class="small-4 columns">
-            <input ng-model="cash_coupon" type="text" placeholder="价格">
-          </div>          
-          <div class="small-8 columns">
-            <a ng-click="addCashCoupon(cash_coupon)" style="margin-top:-7px;" class="button success">添加</a>
-        </div>        
-      </p>
-      <h3>已选红包</h3>
-      <p>  
-      <li>{{item.cash_coupon}}</li>     
-        <a ng-repeat="item in cash_coupon_list" ng-click="removeCashCoupon(item.cash_coupon)" class="large round button">{{item.cash_coupon}}元</a>
-        
-        <a class="large round button" style="background-color:orange">总计{{total_cash_coupon}}元</a>
-      </p>
-    </div>
-  </div>
-</div> -->
 <div class="row">
   <div class="small-12 columns">
-    <a ng-click="run()" class="button success expand">开始结算</a>
+    <a ng-click="run()" class="button success expand">开始计算</a>
   </div>
 </div>
 <div class="row">
